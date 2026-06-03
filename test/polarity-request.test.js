@@ -248,6 +248,68 @@ describe("polarityRequest", () => {
   });
 
   // ---------------------------------------------------------------------------
+  // TLS / SSL dispatcher
+  // ---------------------------------------------------------------------------
+
+  describe("TLS dispatcher (per-request SSL bypass)", () => {
+    let savedIgnoreSSL;
+
+    beforeEach(() => {
+      savedIgnoreSSL = process.env.POLARITY_IGNORE_SSL;
+    });
+
+    afterEach(() => {
+      if (savedIgnoreSSL === undefined) {
+        delete process.env.POLARITY_IGNORE_SSL;
+      } else {
+        process.env.POLARITY_IGNORE_SSL = savedIgnoreSSL;
+      }
+    });
+
+    it("passes a dispatcher to fetch when POLARITY_IGNORE_SSL=true", async () => {
+      process.env.POLARITY_IGNORE_SSL = "true";
+
+      fetchMock.mock.mockImplementation(() =>
+        Promise.resolve({ ok: true, json: async () => ({}) })
+      );
+
+      await polarityRequest("GET", "/api/integrations");
+
+      const [, opts] = fetchMock.mock.calls[0].arguments;
+      assert.ok(
+        opts.dispatcher != null,
+        "expected a dispatcher option when POLARITY_IGNORE_SSL=true"
+      );
+    });
+
+    it("does NOT pass a dispatcher when POLARITY_IGNORE_SSL is not set", async () => {
+      delete process.env.POLARITY_IGNORE_SSL;
+
+      fetchMock.mock.mockImplementation(() =>
+        Promise.resolve({ ok: true, json: async () => ({}) })
+      );
+
+      await polarityRequest("GET", "/api/integrations");
+
+      const [, opts] = fetchMock.mock.calls[0].arguments;
+      assert.equal(opts.dispatcher, undefined);
+    });
+
+    it("does NOT pass a dispatcher when POLARITY_IGNORE_SSL=false", async () => {
+      process.env.POLARITY_IGNORE_SSL = "false";
+
+      fetchMock.mock.mockImplementation(() =>
+        Promise.resolve({ ok: true, json: async () => ({}) })
+      );
+
+      await polarityRequest("GET", "/api/integrations");
+
+      const [, opts] = fetchMock.mock.calls[0].arguments;
+      assert.equal(opts.dispatcher, undefined);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Success Path
   // ---------------------------------------------------------------------------
 

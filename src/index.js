@@ -7,14 +7,12 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import {
   TOOLS,
-  applySSLFlag,
   handleListAvailableIntegrations,
   handleDoIntegrationLookup,
   handleParseEntities,
 } from "./polarity.js";
 
-// Many self-hosted Polarity instances use self-signed certs
-applySSLFlag();
+// SSL bypass for self-signed certs is handled per-request inside polarity.js
 
 if (!process.env.POLARITY_SERVER_URL?.replace(/\/$/, "")) {
   console.error("Error: POLARITY_SERVER_URL environment variable is required.");

@@ -21,10 +21,8 @@ import assert from "node:assert/strict";
 const SKIP = !process.env.POLARITY_SERVER_URL || !process.env.POLARITY_TOKEN;
 const skipMsg = "No live server configured (set POLARITY_SERVER_URL and POLARITY_TOKEN)";
 
-// Apply SSL flag before importing polarity.js so TLS bypass is in effect
-if (process.env.POLARITY_IGNORE_SSL === "true") {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-}
+// SSL bypass is now handled per-request inside polarityRequest() via undici Agent.
+// No need to set NODE_TLS_REJECT_UNAUTHORIZED here.
 
 const { listIntegrations, parseEntities, doLookup } = await import("../src/polarity.js");
 
@@ -201,10 +199,9 @@ describe("Full two-step chain (mirrors do_integration_lookup tool)", () => {
 
 describe("Self-signed certificate behavior", () => {
   skip("all tests above pass when POLARITY_IGNORE_SSL=true is set", () => {
-    // This describe block acts as documentation: when POLARITY_IGNORE_SSL=true
-    // is in the environment, all integration tests in this file should pass
-    // against a server using a self-signed cert.
-    // The SSL bypass is applied at the top of this file before any imports.
-    assert.ok(true, "SSL bypass applied via NODE_TLS_REJECT_UNAUTHORIZED=0");
+    // When POLARITY_IGNORE_SSL=true is in the environment, polarityRequest()
+    // attaches a per-request undici Agent({ connect: { rejectUnauthorized: false } })
+    // so all integration tests in this file pass against self-signed cert servers.
+    assert.ok(true, "SSL bypass handled per-request via undici Agent");
   });
 });

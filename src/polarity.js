@@ -8,6 +8,11 @@
 //
 // No process.exit(), no server.connect(), no side effects on import.
 // ---------------------------------------------------------------------------
+import { Agent } from "undici";
+
+// Only alphanumeric, underscores, and hyphens — prevents path traversal
+// e.g. blocks "../../../admin" or "foo/bar" style injection
+const INTEGRATION_ID_RE = /^[a-zA-Z0-9_-]+$/;
 
 // ---------------------------------------------------------------------------
 // Tool definitions
@@ -97,6 +102,12 @@ export async function polarityRequest(method, path, body = null) {
     },
   };
 
+  // Per-request TLS bypass — scoped only to Polarity calls so other MCP servers
+  // sharing the Claude Desktop process are not affected.
+  if (process.env.POLARITY_IGNORE_SSL === "true") {
+    opts.dispatcher = new Agent({ connect: { rejectUnauthorized: false } });
+  }
+
   if (body) {
     opts.body = JSON.stringify(body);
   }
@@ -126,9 +137,14 @@ export async function parseEntities(text) {
 }
 
 export async function doLookup(integrationId, entities) {
+  if (!INTEGRATION_ID_RE.test(integrationId)) {
+    throw new Error(
+      `Invalid integration_id "${integrationId}": must contain only alphanumeric characters, underscores, and hyphens.`
+    );
+  }
   const data = await polarityRequest(
     "POST",
-    `/api/integrations/${integrationId}/lookup`,
+    `/api/integrations/${encodeURIComponent(integrationId)}/lookup`,
     {
       data: { type: "integrations", attributes: { entities } },
     }
@@ -253,16 +269,11 @@ export async function handleParseEntities(text) {
 }
 
 /**
- * Applies the SSL bypass flag if POLARITY_IGNORE_SSL=true.
- * This sets NODE_TLS_REJECT_UNAUTHORIZED=0 at the process level —
- * it affects ALL HTTPS connections, not just those to the Polarity server.
- * This is an intentional trade-off for self-hosted cert support.
- *
- * ⚠️ Risk note: process-level TLS bypass. Consider scoping to individual
- * requests via a custom https.Agent in a future improvement.
+ * No-op: SSL bypass is now handled per-request inside polarityRequest() via a
+ * scoped undici Agent, so this function no longer sets the process-level
+ * NODE_TLS_REJECT_UNAUTHORIZED variable. Kept as an export so existing callers
+ * do not need an immediate update.
  */
 export function applySSLFlag() {
-  if (process.env.POLARITY_IGNORE_SSL === "true") {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  }
+  // intentional no-op — see polarityRequest() for the per-request implementation
 }

@@ -19,7 +19,7 @@ import assert from "node:assert/strict";
 process.env.POLARITY_SERVER_URL = "https://polarity.test";
 process.env.POLARITY_TOKEN = "test-token";
 
-const { handleDoIntegrationLookup } = await import("../src/polarity.js");
+const { handleDoIntegrationLookup, doLookup } = await import("../src/polarity.js");
 
 // ---------------------------------------------------------------------------
 // Fetch response helpers
@@ -329,7 +329,7 @@ describe("handleDoIntegrationLookup", () => {
   // ---------------------------------------------------------------------------
 
   describe("Input Passthrough", () => {
-    it("passes integration_id in the lookup URL", async () => {
+    it("passes integration_id in the lookup URL (encoded)", async () => {
       const integrationId = "exact-integration-id-xyz";
       mockTwoStep(
         parsedEntitiesResponse([{ type: "IPv4", value: "1.1.1.1" }]),
@@ -341,8 +341,8 @@ describe("handleDoIntegrationLookup", () => {
       const lookupCall = fetchMock.mock.calls[1];
       const [url] = lookupCall.arguments;
       assert.ok(
-        url.includes(`/api/integrations/${integrationId}/lookup`),
-        `expected integration id in URL: ${url}`
+        url.includes(`/api/integrations/${encodeURIComponent(integrationId)}/lookup`),
+        `expected encoded integration id in URL: ${url}`
       );
     });
 
@@ -375,4 +375,71 @@ describe("handleDoIntegrationLookup", () => {
       assert.deepEqual(body.data.attributes.entities, entities);
     });
   });
+});
+
+// ---------------------------------------------------------------------------
+// integration_id validation (tests doLookup() directly)
+// ---------------------------------------------------------------------------
+
+describe("doLookup — integration_id validation", () => {
+  let fetchMock;
+
+  beforeEach(() => {
+    fetchMock = mock.method(globalThis, "fetch");
+  });
+
+  afterEach(() => {
+    mock.restoreAll();
+  });
+
+  const invalidIds = [
+    "../../../admin",
+    "foo/bar",
+    "foo bar",
+    "foo;DROP TABLE",
+    "foo\x00null",
+    "",
+    "foo@bar",
+    "foo!bar",
+  ];
+
+  for (const id of invalidIds) {
+    it(`throws for invalid integration_id: ${JSON.stringify(id)}`, async () => {
+      await assert.rejects(
+        () => doLookup(id, []),
+        (err) => {
+          assert.ok(err instanceof Error);
+          assert.ok(
+            err.message.includes("Invalid integration_id"),
+            `expected validation error, got: ${err.message}`
+          );
+          return true;
+        }
+      );
+      // Must not reach the network
+      assert.equal(fetchMock.mock.calls.length, 0);
+    });
+  }
+
+  const validIds = [
+    "alienvault_otx",
+    "greynoise",
+    "arin_3_2_3_node_18_e319bde8f6_1697656952",
+    "my-integration",
+    "ABC123",
+  ];
+
+  for (const id of validIds) {
+    it(`accepts valid integration_id: ${JSON.stringify(id)}`, async () => {
+      fetchMock.mock.mockImplementation(() =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({ data: { attributes: { results: [] } } }),
+        })
+      );
+
+      // Should not throw for a valid id (empty results is fine)
+      await assert.doesNotReject(() => doLookup(id, []));
+    });
+  }
 });

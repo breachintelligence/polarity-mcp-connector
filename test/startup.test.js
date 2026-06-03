@@ -148,10 +148,9 @@ describe("URL Normalization", () => {
 // ---------------------------------------------------------------------------
 // SSL Flag Tests — calls applySSLFlag() directly from polarity.js
 //
-// ⚠️ SSL risk note: NODE_TLS_REJECT_UNAUTHORIZED=0 is process-level and
-// affects ALL HTTPS connections, not just those to the Polarity server.
-// This is intentional for self-hosted cert support but should ideally be
-// scoped per-request using a custom https.Agent in a future improvement.
+// applySSLFlag() is now a no-op. SSL bypass is handled per-request inside
+// polarityRequest() via a scoped undici Agent so that other MCP servers
+// sharing the Claude Desktop process are not affected.
 // ---------------------------------------------------------------------------
 
 describe("SSL Flag Behavior", () => {
@@ -189,10 +188,17 @@ describe("SSL Flag Behavior", () => {
     assert.notEqual(process.env.NODE_TLS_REJECT_UNAUTHORIZED, "0");
   });
 
-  it("sets NODE_TLS_REJECT_UNAUTHORIZED=0 when POLARITY_IGNORE_SSL=true", () => {
+  it("does NOT set NODE_TLS_REJECT_UNAUTHORIZED when POLARITY_IGNORE_SSL=true (per-request bypass now used instead)", () => {
+    // applySSLFlag() is a no-op. The SSL bypass is applied per-request in
+    // polarityRequest() via undici Agent({ connect: { rejectUnauthorized: false } })
+    // so it never touches the process-level env var.
     process.env.POLARITY_IGNORE_SSL = "true";
     applySSLFlag();
-    assert.equal(process.env.NODE_TLS_REJECT_UNAUTHORIZED, "0");
+    assert.notEqual(
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED,
+      "0",
+      "applySSLFlag() must not set NODE_TLS_REJECT_UNAUTHORIZED — SSL is handled per-request"
+    );
   });
 
   it("does NOT set NODE_TLS_REJECT_UNAUTHORIZED when POLARITY_IGNORE_SSL=TRUE (uppercase)", () => {
