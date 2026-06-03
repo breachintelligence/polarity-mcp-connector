@@ -69,21 +69,6 @@ Restart Claude Desktop. You should see the Polarity tools appear in the tools pa
 
 ---
 
-## Authentication Note
-
-> **Heads up for Polarity platform engineers:** The `/mcp` streaming endpoint in `router.ex` currently restricts to `:access_types` (session tokens only). This npm connector intentionally targets the REST API (`/api/integrations`, `/api/parsed-entities`) instead, which accepts long-lived API key tokens (`typ: "api"`). No router change is required for the connector to work.
->
-> If you want Claude to use the native Polarity Streamable HTTP MCP endpoint (`POST /mcp`) with API keys, change the MCP pipeline in `router.ex` from:
-> ```elixir
-> pipe_through [:mcp, :access_types]
-> ```
-> to:
-> ```elixir
-> pipe_through [:mcp, :access_and_api_types]
-> ```
-
----
-
 ## License
 
 MIT
