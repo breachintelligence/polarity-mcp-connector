@@ -37,6 +37,12 @@
           "description": "Set to 'true' if your Polarity server uses a self-signed certificate.",
           "required": false,
           "secret": false
+        },
+        {
+          "name": "POLARITY_TIMEOUT_MS",
+          "description": "Timeout in milliseconds for Polarity API requests. Defaults to 30000 (30 seconds). Increase for slow integrations.",
+          "required": false,
+          "secret": false
         }
       ]
     }
