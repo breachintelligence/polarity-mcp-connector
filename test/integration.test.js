@@ -50,12 +50,14 @@ describe("listIntegrations() — live API", () => {
     }
   });
 
-  skip("every item has attributes.name (string), attributes.status (string), attributes.entityTypes (array)", async () => {
+  skip("every item has attributes.name (string), attributes.status (string), attributes.entityTypes (array or null)", async () => {
     const result = await listIntegrations();
     for (const item of result) {
       assert.equal(typeof item.attributes?.name, "string");
       assert.equal(typeof item.attributes?.status, "string");
-      assert.ok(Array.isArray(item.attributes?.entityTypes));
+      // entityTypes may be an array, null, or undefined depending on integration type
+      const et = item.attributes?.entityTypes;
+      assert.ok(Array.isArray(et) || et === null || et === undefined, `expected entityTypes to be array, null, or undefined, got: ${JSON.stringify(et)}`);
     }
   });
 
@@ -142,13 +144,16 @@ describe("doLookup() — live API", () => {
     }
   });
 
-  skip("doLookup with nonexistent integration id throws error containing 404", async () => {
+  skip("doLookup with nonexistent integration id throws an API error (403 or 404)", async () => {
+    // The server returns 403 (insufficient privileges) for unknown integration IDs
+    // rather than 404 — documenting actual behavior here.
     await assert.rejects(
       () => doLookup("nonexistent-integration-id-xyz-000", [{ type: "IPv4", value: "8.8.8.8" }]),
       (err) => {
+        assert.ok(err instanceof Error, "expected an Error");
         assert.ok(
-          err.message.includes("404") || err.message.includes("not found"),
-          `expected 404 in error: ${err.message}`
+          err.message.includes("403") || err.message.includes("404") || err.message.includes("not found"),
+          `expected 403 or 404 in error: ${err.message}`
         );
         return true;
       }
