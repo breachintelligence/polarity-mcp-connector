@@ -14,7 +14,11 @@
     "server.json"
   ],
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js",
+    "test:versions": "node --test test/version-consistency.test.js",
+    "test:unit": "node --test test/polarity-request.test.js test/list-available-integrations.test.js test/do-integration-lookup.test.js test/parse-entities.test.js test/startup.test.js test/version-consistency.test.js",
+    "test:integration": "node --test test/integration.test.js"
   },
   "keywords": [
     "polarity",
