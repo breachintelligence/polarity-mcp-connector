@@ -1,0 +1,43 @@
+{
+  "name": "@polarity/mcp-connector",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) connector for Polarity — the intelligence overlay platform",
+  "mcpName": "io.github.breachintelligence/polarity-mcp",
+  "type": "module",
+  "bin": {
+    "polarity-mcp": "./src/index.js"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src/",
+    "README.md",
+    "server.json"
+  ],
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "polarity",
+    "mcp",
+    "threat-intelligence",
+    "model-context-protocol",
+    "claude",
+    "security",
+    "ioc"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/breachintelligence/polarity-mcp-connector"
+  },
+  "homepage": "https://polarity.io",
+  "publishConfig": {
+    "access": "public"
+  }
+}

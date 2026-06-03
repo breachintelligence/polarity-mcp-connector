@@ -1,0 +1,61 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.breachintelligence/polarity-mcp",
+  "title": "Polarity",
+  "description": "Connect Claude to your self-hosted Polarity instance to perform real-time threat intelligence lookups, parse indicators of compromise (IPs, domains, hashes, URLs), and query any of your configured integrations directly from a conversation.",
+  "version": "1.0.0",
+  "homepage": "https://polarity.io",
+  "license": "MIT",
+  "categories": ["security", "threat-intelligence"],
+  "tags": ["polarity", "threat-intelligence", "security", "ioc", "ctis"],
+  "packages": [
+    {
+      "registryType": "npm",
+      "name": "@polarity/mcp-connector",
+      "version": "1.0.0",
+      "runtime": "node",
+      "transport": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@polarity/mcp-connector"]
+      },
+      "environmentVariables": [
+        {
+          "name": "POLARITY_SERVER_URL",
+          "description": "The base URL of your Polarity server, e.g. https://polarity.yourcompany.com",
+          "required": true,
+          "secret": false
+        },
+        {
+          "name": "POLARITY_TOKEN",
+          "description": "A Polarity API key. Generate one in Polarity under Settings > API Keys.",
+          "required": true,
+          "secret": true
+        },
+        {
+          "name": "POLARITY_IGNORE_SSL",
+          "description": "Set to 'true' if your Polarity server uses a self-signed certificate.",
+          "required": false,
+          "secret": false
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "list_available_integrations",
+      "title": "List Available Integrations",
+      "description": "Lists all running Polarity integrations accessible to the authenticated user, including name, ID, version, description, and supported entity types."
+    },
+    {
+      "name": "do_integration_lookup",
+      "title": "Do Integration Lookup",
+      "description": "Parses entities from a query string and performs a threat intelligence lookup against the specified Polarity integration, returning enriched results."
+    },
+    {
+      "name": "parse_entities",
+      "title": "Parse Entities",
+      "description": "Extracts typed indicators of compromise (IP addresses, domains, URLs, file hashes, email addresses) from free-form text."
+    }
+  ]
+}
