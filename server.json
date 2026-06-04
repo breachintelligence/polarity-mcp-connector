@@ -11,13 +11,13 @@
   "packages": [
     {
       "registryType": "npm",
-      "name": "@polarity/mcp-connector",
+      "name": "@polarityio/mcp-connector",
       "version": "1.0.0",
       "runtime": "node",
       "transport": {
         "type": "stdio",
         "command": "npx",
-        "args": ["-y", "@polarity/mcp-connector"]
+        "args": ["-y", "@polarityio/mcp-connector"]
       },
       "environmentVariables": [
         {

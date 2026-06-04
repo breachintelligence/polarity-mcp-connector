@@ -33,7 +33,7 @@ Add the following to your `claude_desktop_config.json`:
   "mcpServers": {
     "polarity": {
       "command": "npx",
-      "args": ["-y", "@polarity/mcp-connector"],
+      "args": ["-y", "@polarityio/mcp-connector"],
       "env": {
         "POLARITY_SERVER_URL": "https://polarity.yourcompany.com",
         "POLARITY_TOKEN": "your-api-key-here"

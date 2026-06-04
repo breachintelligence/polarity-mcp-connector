@@ -1,5 +1,5 @@
 {
-  "name": "@polarity/mcp-connector",
+  "name": "@polarityio/mcp-connector",
   "version": "1.0.0",
   "description": "Model Context Protocol (MCP) connector for Polarity — the intelligence overlay platform",
   "mcpName": "io.github.breachintelligence/polarity-mcp",
