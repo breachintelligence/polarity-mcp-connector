@@ -11,7 +11,7 @@ Enables Claude to:
 
 ## Prerequisites
 
-- A running Polarity server (v4.x or later)
+- A running Polarity server (v5.7 or later)
 - A Polarity user account with API key access
 - Node.js ≥ 18
 

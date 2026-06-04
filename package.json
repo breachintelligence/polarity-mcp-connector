@@ -1,6 +1,6 @@
 {
   "name": "@polarityio/mcp-connector",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Model Context Protocol (MCP) connector for Polarity — the intelligence overlay platform",
   "mcpName": "io.github.radar989/polarity-mcp",
   "type": "module",
