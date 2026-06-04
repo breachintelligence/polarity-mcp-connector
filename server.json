@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.breachintelligence/polarity-mcp",
+  "name": "io.github.radar989/polarity-mcp",
   "title": "Polarity",
-  "description": "Connect Claude to your self-hosted Polarity instance to perform real-time threat intelligence lookups, parse indicators of compromise (IPs, domains, hashes, URLs), and query any of your configured integrations directly from a conversation.",
-  "version": "1.0.0",
+  "description": "Real-time threat intelligence lookups and IOC parsing from your self-hosted Polarity instance.",
+  "version": "1.0.1",
   "homepage": "https://polarity.io",
   "license": "MIT",
   "categories": ["security", "threat-intelligence"],
@@ -12,7 +12,8 @@
     {
       "registryType": "npm",
       "name": "@polarityio/mcp-connector",
-      "version": "1.0.0",
+      "identifier": "@polarityio/mcp-connector",
+      "version": "1.0.1",
       "runtime": "node",
       "transport": {
         "type": "stdio",
